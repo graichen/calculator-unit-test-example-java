@@ -11,10 +11,18 @@ pipeline {
         HTTP_PROXY="${HTTP_PROXY}"
         HTTPS_PROXY="${HTTPS_PROXY}"
         NO_PROXY="${NO_PROXY}"
+        SONAR_HOST_URL="https://sonarcloud.io"
         SONAR_LOGIN_KEY = credentials('SONAR_LOGIN_KEY')
     }
 
     stages {
+
+        stage('Check env') {
+            steps {
+                sh 'id'
+                sh 'env'
+            }
+        }
 
         stage('Build') {
             agent {
@@ -22,7 +30,10 @@ pipeline {
                     // to run as non-root:
                     // $ docker run -v ~/.m2:/var/maven/.m2 -ti --rm -u 1000 -e MAVEN_CONFIG=/var/maven/.m2 maven mvn -Duser.home=/var/maven archetype:generate
                     image 'maven:3.6.3-jdk-8'
-                    args '-u ${JENKINS_UID} -e MAVEN_OPTS=${MAVEN_OPTS} -v ${JENKINS_HOST_HOME}:/var/jenkins -v ${MAVEN_REPO_DIR}:/var/jenkins/.m2'
+                    //args '-u ${JENKINS_UID} -e MAVEN_OPTS=${MAVEN_OPTS} -v ${JENKINS_HOST_HOME}:/var/jenkins -v ${MAVEN_REPO_DIR}:/var/jenkins/.m2'
+                    // for windows let's skip setting user
+                    //args '-u root:root -e MAVEN_OPTS=${MAVEN_OPTS} -v ${JENKINS_HOST_HOME}:/var/jenkins -v ${MAVEN_REPO_DIR}:/var/jenkins/.m2'
+                    args '-u root:root -v ${JENKINS_HOST_HOME}:/var/jenkins -v ${MAVEN_REPO_DIR}:/var/jenkins/.m2'
                 }
             }
             steps {
@@ -36,7 +47,8 @@ pipeline {
                     // to run as non-root:
                     // $ docker run -v ~/.m2:/var/maven/.m2 -ti --rm -u 1000 -e MAVEN_CONFIG=/var/maven/.m2 maven mvn -Duser.home=/var/maven archetype:generate
                     image 'maven:3.6.3-jdk-8'
-                    args '-u ${JENKINS_UID} -e MAVEN_OPTS=${MAVEN_OPTS} -v ${JENKINS_HOST_HOME}:/var/jenkins -v ${MAVEN_REPO_DIR}:/var/jenkins/.m2 -e SONAR_HOST_URL=${SONAR_HOST_URL} -e SONAR_LOGIN_KEY=${SONAR_LOGIN_KEY}'
+                    //args '-u root:root  -e MAVEN_OPTS=${MAVEN_OPTS} -v ${JENKINS_HOST_HOME}:/var/jenkins -v ${MAVEN_REPO_DIR}:/var/jenkins/.m2 -e SONAR_HOST_URL=${SONAR_HOST_URL} -e SONAR_LOGIN_KEY=${SONAR_LOGIN_KEY}'
+                    args '-u root:root -v ${JENKINS_HOST_HOME}:/var/jenkins -v ${MAVEN_REPO_DIR}:/var/jenkins/.m2 -e SONAR_HOST_URL=${SONAR_HOST_URL} -e SONAR_LOGIN_KEY=${SONAR_LOGIN_KEY}'
                 }
             }
 //            when {
@@ -55,7 +67,8 @@ pipeline {
                     // to run as non-root:
                     // $ docker run -v ~/.m2:/var/maven/.m2 -ti --rm -u 1000 -e MAVEN_CONFIG=/var/maven/.m2 maven mvn -Duser.home=/var/maven archetype:generate
                     image 'maven:3.6.3-jdk-8'
-                    args '-u ${JENKINS_UID} -e MAVEN_OPTS=${MAVEN_OPTS} -v ${JENKINS_HOST_HOME}:/var/jenkins -v ${MAVEN_REPO_DIR}:/var/jenkins/.m2'
+                    //args '-u root:root  -e MAVEN_OPTS=${MAVEN_OPTS} -v ${JENKINS_HOST_HOME}:/var/jenkins -v ${MAVEN_REPO_DIR}:/var/jenkins/.m2'
+                    args '-u root:root -v ${JENKINS_HOST_HOME}:/var/jenkins -v ${MAVEN_REPO_DIR}:/var/jenkins/.m2'
                 }
             }
 //            when {
